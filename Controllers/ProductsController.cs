@@ -58,5 +58,33 @@ namespace apiproject.Controllers
                 product
             );
         }
+
+        // Updating a Product
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchProduct(int id, [FromBody] Product product)
+        {
+            if (id != product.Id)
+            {
+                return BadRequest();
+            }
+            _context.Entry(product).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // If the product is already deleted or edited then,
+                if (!_context.Products.Any(p => p.Id == id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return NoContent();
+        }
     }
 }
