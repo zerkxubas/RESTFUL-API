@@ -14,7 +14,8 @@ namespace apiproject.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ShopContext _context;
-        public ProductsController(ShopContext context){
+        public ProductsController(ShopContext context)
+        {
             _context = context;
             _context.Database.EnsureCreated();
         }
@@ -29,18 +30,33 @@ namespace apiproject.Controllers
 
         // Second Approach to get all products.
         [HttpGet]
-        public async Task<ActionResult> GetAllProducts(){
-            return Ok(await _context.Products.ToArrayAsync());       
+        public async Task<ActionResult> GetAllProducts()
+        {
+            return Ok(await _context.Products.ToArrayAsync());
         }
 
         [HttpGet("{id}")]
-        public ActionResult GetProduct(int id){
+        public ActionResult GetProduct(int id)
+        {
             var product = _context.Products.Find(id);
             if (product == null)
             {
                 return NotFound();
             }
             return Ok(product);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> PostProduct(Product product)
+        {
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(
+                "GetProduct",
+                new { id = product.Id },
+                product
+            );
         }
     }
 }
